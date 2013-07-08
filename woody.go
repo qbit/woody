@@ -2,12 +2,18 @@ package main
 
 import (
 	"database/sql"
-	"net/http"
-	"os"
-	"log"
 	"fmt"
 	_ "github.com/bmizerany/pq"
+	"log"
+	"net/http"
+	"os"
 )
+
+func errr(e error, msg string) {
+	if e != nil {
+		log.Printf("[!]: %s - %s", msg, e)
+	}
+}
 
 func ConnectDB() (*sql.DB, error) {
 	conn_string := fmt.Sprintf(
@@ -20,10 +26,7 @@ func ConnectDB() (*sql.DB, error) {
 		os.Getenv("PGSSLMODE"))
 
 	db, err := sql.Open("postgres", conn_string)
-	if err != nil {
-		log.Printf("[!] dbase couldn't open database connection: %s", err)
-		db = nil
-	}
+	errr(err, "dbase couldn't open database connection")
 
 	return db, err
 }
@@ -34,16 +37,15 @@ func reqHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	db, err := ConnectDB()
+	errr(err, "Can't connect")
 	if err != nil {
 		log.Printf("YAY")
 	}
 
 	rows, err := db.Query("select * from geography_columns")
-	if err != nil {
-		log.Printf("%s", err)
-	}
+	errr(err, "Can't query")
 
 	fmt.Printf("%#v\n", rows)
 	http.HandleFunc("/", reqHandler)
-	http.ListenAndServe(":8080", nil);
+	http.ListenAndServe(":8080", nil)
 }
