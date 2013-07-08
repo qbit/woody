@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"net/http"
 	"os"
 	"log"
 	"fmt"
@@ -27,6 +28,10 @@ func ConnectDB() (*sql.DB, error) {
 	return db, err
 }
 
+func reqHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "%s", r.URL.Path[1:])
+}
+
 func main() {
 	db, err := ConnectDB()
 	if err != nil {
@@ -39,5 +44,6 @@ func main() {
 	}
 
 	fmt.Printf("%#v\n", rows)
+	http.HandleFunc("/", reqHandler)
+	http.ListenAndServe(":8080", nil);
 }
-
