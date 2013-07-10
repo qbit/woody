@@ -1,0 +1,13 @@
+<html>
+<head>
+	<title>Test</title>
+</head>
+<body>
+	<form method="POST" name="xss" action="/save">
+		<input type="text" name="data">
+		<input type="submit" value="enter">
+	</form>
+	<div id="output">{{.Data}}</div>
+</body>
+</html>
+
