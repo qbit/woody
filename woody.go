@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/bmizerany/pq"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -15,15 +16,28 @@ func errr(e error, msg string) {
 	}
 }
 
+
+func getFile(file string) []byte {
+	filename := "public/" + file
+	log.Printf("%s", filename)
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		data = []byte("404 - Not Found!")
+	}
+	errr(err, "Can't read file!")
+
+	return data
+}
+
 func ConnectDB() (*sql.DB, error) {
 	conn_string := fmt.Sprintf(
 		"dbname=%s user=%s password=%s host=%s port=%s sslmode=%s",
 		os.Getenv("PGDBNAME"),
-		os.Getenv("PGUSER"),
+		orit(os.Getenv("PGUSER"), "postgres"),
 		os.Getenv("PGPASSWORD"),
-		os.Getenv("PGHOST"),
-		os.Getenv("PGPORT"),
-		os.Getenv("PGSSLMODE"))
+		orit(os.Getenv("PGHOST"), "localhost"),
+		orit(os.Getenv("PGPORT"), "5432"),
+		orit(os.Getenv("PGSSLMODE"), "disable"))
 
 	db, err := sql.Open("postgres", conn_string)
 	errr(err, "dbase couldn't open database connection")
@@ -32,7 +46,7 @@ func ConnectDB() (*sql.DB, error) {
 }
 
 func reqHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%s", r.URL.Path[1:])
+	fmt.Fprintf(w, "%s", getFile(r.URL.Path[1:]))
 }
 
 func main() {
@@ -42,7 +56,7 @@ func main() {
 		log.Printf("YAY")
 	}
 
-	rows, err := db.Query("select * from geography_columns")
+	rows, err := db.Query("select * from hold_types")
 	errr(err, "Can't query")
 
 	fmt.Printf("%#v\n", rows)
