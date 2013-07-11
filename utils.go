@@ -9,4 +9,3 @@ func orit(a ...string) string {
 	}
 	return ret
 }
-

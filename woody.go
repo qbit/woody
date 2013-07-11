@@ -16,7 +16,6 @@ func errr(e error, msg string) {
 	}
 }
 
-
 func getFile(file string) []byte {
 	filename := "public/" + file
 	log.Printf("%s", filename)

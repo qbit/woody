@@ -2,6 +2,7 @@ package main
 
 import (
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -12,9 +13,9 @@ type P struct {
 
 func set(w http.ResponseWriter, r *http.Request) {
 	p := r.FormValue("data")
+	log.Printf("received '%s'", p);
 	t, _ := template.ParseFiles("xss.html")
-	page := &P{Data: p}
-	t.Execute(w, page)
+	t.Execute(w, &P{Data:p})
 }
 
 func get(w http.ResponseWriter, r *http.Request) {
